@@ -102,46 +102,43 @@ int get_hamming_dist(   const char *a, // first string
     return result;
 }
 
-bool DO_ENCRYPT = 0;
 
-int main2(void)
-{
-    FILE *message_file = fopen("input.txt", "r");
-    FILE *key_file = fopen("key.key", "r");
-    FILE *out_file = fopen("output.txt", "w");
-    static char buf[BUFSZ], buft[BUFSZ];
-    static char key[BUFSZ];
-    static char encrypted_message[BUFSZ];
-    
-    // reading key
-    fgets(key, BUFSZ - 1, key_file);
-    key[strcspn(key, "\n")] = '\0';
-    
-    int retval = fread(buf, 1, BUFSZ - 1, message_file);
-    
-    // if (!retval) break;
-    //std::cout << "<" << buf << ">" << std::endl;
-    // buf[strcspn(buf, "\n")] = '\0';
-    if (DO_ENCRYPT) encrypt(buf, key, encrypted_message, strlen(buf), strlen(key), 1);
-    else
-    {
-        fromhextobin(buf, buft, strlen(buf));
-        encrypt(buft, key, encrypted_message, strlen(buf) >> 1, strlen(key), 0);
-    }
-    fprintf(out_file, "%s", encrypted_message);
-
-    fclose(message_file);
-    fclose(key_file);
-    fclose(out_file);
-    return 0;
-}
-
-// testing hamming distance function
 int main(void)
 {
-    char a[] = "this is a test";
-    char b[] = "wokka wokka!!!";
+    using namespace std;
 
-    printf("%d", get_hamming_dist(a, b, strlen(a)));
+    FILE *encrypted_message_file = fopen("input.txt", "r");
+    
+    char encr_mess[BUFSZ];
+
+    fread(encr_mess, 1, BUFSZ - 1, encrypted_message_file);
+
+    // TODO: need base64 to binary convertion
+    // ...
+
+    // going though key sizes
+    vector<pair<int, double>> arr;
+    for (int key_size = 2; key_size < 41; key_size++)
+    {
+        int dist = get_hamming_dist(encr_mess, encr_mess + key_size, key_size);
+        double norm_dist = (double) dist / key_size;
+        arr.push_back({key_size, norm_dist});
+    }
+
+    sort(arr.begin(), arr.end(), [](const auto a, const auto b)
+    {
+        return a.second < b.second;
+    });
+
+    // cutting all no interesting values
+    arr.resize(3);
+
+    // printing results
+    for (auto u : arr)
+    {
+        cout << u.first << " " << u.second << endl;
+    }
+
+    fclose(encrypted_message_file);
     return 0;
 }
