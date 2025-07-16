@@ -79,9 +79,32 @@ void bintohex(const char *src,
     dist[sz << 1] = '\0';
 }
 
+int get_hamming_dist(   const char *a, // first string
+                        const char *b, // second string
+                        const int sz)  // number of characters in each to compare
+{
+    int result = 0;
+    // going through each byte (character)
+    for (int i = 0; i < sz; i++)
+    {
+        // do xor to bytes
+        char t = a[i] ^ b[i];
+
+        // counting number of 1 bits
+        // Hacker's delight 5-1 bit manipulation
+        t = (t & 0x55) + (t >> 1 & 0x55);
+        t = (t & 0x33) + (t >> 2 & 0x33);
+        t = (t & 0x0f) + (t >> 4 & 0x0f);
+
+        result += (unsigned) t;
+    }
+
+    return result;
+}
+
 bool DO_ENCRYPT = 0;
 
-int main(void)
+int main2(void)
 {
     FILE *message_file = fopen("input.txt", "r");
     FILE *key_file = fopen("key.key", "r");
@@ -110,5 +133,15 @@ int main(void)
     fclose(message_file);
     fclose(key_file);
     fclose(out_file);
+    return 0;
+}
+
+// testing hamming distance function
+int main(void)
+{
+    char a[] = "this is a test";
+    char b[] = "wokka wokka!!!";
+
+    printf("%d", get_hamming_dist(a, b, strlen(a)));
     return 0;
 }
