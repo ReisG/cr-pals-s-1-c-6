@@ -169,27 +169,101 @@ int main(void)
 
 
     // going though key sizes
-    vector<pair<int, double>> arr;
+    vector<pair<int, double>> KEY_SIZES;
     for (int key_size = 2; key_size < 41; key_size++)
     {
         int dist = get_hamming_dist(encr_mess, encr_mess + key_size, key_size);
         double norm_dist = (double) dist / key_size;
-        arr.push_back({key_size, norm_dist});
+        KEY_SIZES.push_back({key_size, norm_dist});
     }
 
-    sort(arr.begin(), arr.end(), [](const auto a, const auto b)
+    sort(KEY_SIZES.begin(), KEY_SIZES.end(), [](const auto a, const auto b)
     {
         return a.second < b.second;
     });
 
     // cutting all no interesting values
-    arr.resize(3);
+    KEY_SIZES.resize(3);
 
     // printing results
     cout << "Key length, error level" << endl;
-    for (auto u : arr)
+    for (auto u : KEY_SIZES)
     {
         cout << "- " << u.first << " " << u.second << endl;
+    }
+
+    for (auto &[KEY_SIZE, _KEY_PROBABILITY] : KEY_SIZES)
+    {
+        cout << ">>> WORKING WITH KEY_SIZE " << KEY_SIZE << endl;
+        // need to create statistics for every letter in key
+        // then we compare captured frequency distributions
+        // to original english distribution.
+
+        //const int APLH_SIZE = 'z' - 'a' + 1;
+        //double alph_distr[APLH_SIZE];
+        
+        // looking for 2 most appearing symbols
+        // we assume that is space and e
+        // so for each length we will have to keys
+        string KEY_VALUE;
+        int total = 0;
+        for (int letid = 0; letid < KEY_SIZE; letid++)
+        {
+            cout << ">>> >>> LETTERID " << letid << endl;
+            map<char, int> letter_st_map;
+
+            for (int i = letid; i < encr_mess_size; i += KEY_SIZE)
+            {
+                letter_st_map[tolower(encr_mess[i])]++;
+            }
+
+            // rearranging statistics and creating an array
+            vector<pair<int, char>> letter_st_ar;
+            for (auto t : letter_st_ar) letter_st_ar.push_back(t);
+            sort(letter_st_ar.begin(), letter_st_ar.end(), [](const auto a, const auto b)
+            {
+                return a.first > b.first;
+            });
+
+            // freeing memory
+            // first to choose key second to fit it
+            // letter_st_ar.resize(2);
+
+            for (auto t : letter_st_ar) cout << t.first << " " << (int) t.second << endl;
+
+            char NOW_KEY = 0; // assume that we don't use this letter in key
+            // checking first one
+            char F_NOW_KEY = ' ' ^ letter_st_ar[0].second;
+            char S_NOW_KEY = 'e' ^ letter_st_ar[0].second;
+            if (F_NOW_KEY ^ letter_st_ar[1].second == 'e') NOW_KEY = F_NOW_KEY;
+            else if (S_NOW_KEY ^ letter_st_ar[1].second == ' ') NOW_KEY = S_NOW_KEY;
+
+            if (!NOW_KEY) break;
+
+            // we probably have found letter in key
+            KEY_VALUE += NOW_KEY;
+
+            // // counting number of occurrences
+            // memset(alph_distr, 0, sizeof(alph_distr));
+            // for (int i = letid; i < encr_mess_size; i += KEY_SIZE)
+            // {
+            //     if (encr_mess[i] == ' ') continue;
+            //     alph_distr[encr_mess[i]]++;
+            //     total++;
+            // }
+
+            // // normalizing result
+            // for (int i = 0; i < APLH_SIZE; i++) alph_distr[i] /= total;
+
+            // // checking if our distribution match to 
+
+        }
+
+        // in case we failed 
+        if (KEY_VALUE.size() != KEY_SIZE) continue;
+        
+        // print key in case we succeed
+        cout << KEY_SIZE << " <" << KEY_VALUE << ">" << endl;
     }
 
     fclose(encrypted_message_file);
