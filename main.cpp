@@ -186,9 +186,10 @@ int main(void)
     arr.resize(3);
 
     // printing results
+    cout << "Key length, error level" << endl;
     for (auto u : arr)
     {
-        cout << u.first << " " << u.second << endl;
+        cout << "- " << u.first << " " << u.second << endl;
     }
 
     fclose(encrypted_message_file);
