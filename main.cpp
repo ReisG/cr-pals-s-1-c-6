@@ -150,12 +150,23 @@ int main(void)
 
     FILE *encrypted_message_file = fopen("input.txt", "r");
     
-    char encr_mess[BUFSZ];
+    char encr_mess_base64[BUFSZ], encr_mess[BUFSZ];
 
-    fread(encr_mess, 1, BUFSZ - 1, encrypted_message_file);
+    fread(encr_mess_base64, 1, BUFSZ - 1, encrypted_message_file);
+    int encr_mess_base64_size;
+    encr_mess_base64[
+        encr_mess_base64_size = strcspn(encr_mess_base63, "\n")
+    ] = '\0';
 
     // TODO need base64 to binary convertion
-    // ...
+    conv_base64_bin(encr_mess_base64, encr_mess, strlen(encr_mess_base64));
+    int encr_mess_size = encr_mess_base64_size / 4 * 3;
+    encr_mess_size += encr_mess_base64[encr_mess_base64_size - 1] == '=';
+    encr_mess_size += encr_mess_base64[encr_mess_base64_size - 2] == '=';
+    
+
+    // goto program_end;
+
 
     // going though key sizes
     vector<pair<int, double>> arr;
@@ -180,6 +191,7 @@ int main(void)
         cout << u.first << " " << u.second << endl;
     }
 
+program_end:
     fclose(encrypted_message_file);
     return 0;
 }
