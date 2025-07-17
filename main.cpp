@@ -103,6 +103,47 @@ int get_hamming_dist(   const char *a, // first string
 }
 
 
+char conv_base64_digit_bin(char letter) // base64 letter to convert
+{
+    if ('A' <= letter && letter <= 'Z') return letter - 'A';
+    if ('a' <= letter && letter <= 'z') return letter - 'a' + 'Z' - 'A' + 1;
+    if (letter == '+') return 63;
+    if (letter == '/') return 64;
+    return -1;
+}
+
+
+// converts base64 string to binary format
+// **string of bytes** as a result
+void conv_base64_bin(   const char *src,  // base64 string 
+                        char *dist,       // resulting binary string 
+                        int str_size)     // number of bytes to encode base64 string
+{
+    // one character in base64 determines 6 bits
+    // therefore we will decode it with 4 symbol groups
+    // this produces 3 bytes of information
+    // and there can = or == appear at the end of a message
+    
+    for (int i = 0; i < str_size; i += 4)
+    {
+        char buf[3];
+        // preparing buffer with zero values
+        buf[0] = buf[1] = buf[2] = 0;
+
+        buf[0] = conv_base64_digit_bin(src[i]) << 2;
+        buf[0] |= (unsigned char) conv_base64_digit_bin(src[i + 1]) >> 4;
+        buf[1] = (conv_base64_digit_bin(src[i + 1]) & 0xf) << 4;
+        buf[1] |= (unsigned char) conv_base64_digit_bin(src[i + 2]) >> 2;
+        buf[2] = conv_base64_digit_bin(src[i + 2]) << 5;
+        buf[2] |= conv_base64_digit_bin(src[i + 3]);
+
+        *dist = buf[0];
+        if (src[i + 2] != '=') *(dist + 1) = buf[1];
+        else if (src[i + 3] != '=') *(dist + 2) = buf[2];
+        dist += 3;
+    }
+}
+
 int main(void)
 {
     using namespace std;
@@ -113,7 +154,7 @@ int main(void)
 
     fread(encr_mess, 1, BUFSZ - 1, encrypted_message_file);
 
-    // TODO: need base64 to binary convertion
+    // TODO need base64 to binary convertion
     // ...
 
     // going though key sizes
