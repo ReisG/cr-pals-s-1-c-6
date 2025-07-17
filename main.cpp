@@ -107,6 +107,7 @@ char conv_base64_digit_bin(char letter) // base64 letter to convert
 {
     if ('A' <= letter && letter <= 'Z') return letter - 'A';
     if ('a' <= letter && letter <= 'z') return letter - 'a' + 'Z' - 'A' + 1;
+    if ('0' <= letter && letter <= '9') return letter - '0' + 'z' - 'a' + 'Z' - 'A' + 2;
     if (letter == '+') return 63;
     if (letter == '/') return 64;
     return -1;
@@ -134,12 +135,14 @@ void conv_base64_bin(   const char *src,  // base64 string
         buf[0] |= (unsigned char) conv_base64_digit_bin(src[i + 1]) >> 4;
         buf[1] = (conv_base64_digit_bin(src[i + 1]) & 0xf) << 4;
         buf[1] |= (unsigned char) conv_base64_digit_bin(src[i + 2]) >> 2;
-        buf[2] = conv_base64_digit_bin(src[i + 2]) << 5;
+        buf[2] = conv_base64_digit_bin(src[i + 2]) << 6;
         buf[2] |= conv_base64_digit_bin(src[i + 3]);
 
         *dist = buf[0];
-        if (src[i + 2] != '=') *(dist + 1) = buf[1];
-        else if (src[i + 3] != '=') *(dist + 2) = buf[2];
+        if (src[i + 2] == '=') break;
+        *(dist + 1) = buf[1];
+        if (src[i + 3] == '=') break;
+        *(dist + 2) = buf[2];
         dist += 3;
     }
 }
@@ -155,17 +158,14 @@ int main(void)
     fread(encr_mess_base64, 1, BUFSZ - 1, encrypted_message_file);
     int encr_mess_base64_size;
     encr_mess_base64[
-        encr_mess_base64_size = strcspn(encr_mess_base63, "\n")
+        encr_mess_base64_size = strcspn(encr_mess_base64, "\n")
     ] = '\0';
 
     // TODO need base64 to binary convertion
     conv_base64_bin(encr_mess_base64, encr_mess, strlen(encr_mess_base64));
-    int encr_mess_size = encr_mess_base64_size / 4 * 3;
-    encr_mess_size += encr_mess_base64[encr_mess_base64_size - 1] == '=';
-    encr_mess_size += encr_mess_base64[encr_mess_base64_size - 2] == '=';
-    
-
-    // goto program_end;
+    int encr_mess_size = (encr_mess_base64_size / 4) * 3;
+    encr_mess_size -= encr_mess_base64[encr_mess_base64_size - 1] == '=';
+    encr_mess_size -= encr_mess_base64[encr_mess_base64_size - 2] == '=';
 
 
     // going though key sizes
@@ -191,7 +191,6 @@ int main(void)
         cout << u.first << " " << u.second << endl;
     }
 
-program_end:
     fclose(encrypted_message_file);
     return 0;
 }
