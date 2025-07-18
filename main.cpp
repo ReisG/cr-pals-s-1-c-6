@@ -253,8 +253,8 @@ int main(void)
             // checking first one
             char F_NOW_KEY = ' ' ^ letter_st_ar[0].second;
             char S_NOW_KEY = 'e' ^ letter_st_ar[0].second;
-            if (F_NOW_KEY ^ letter_st_ar[1].second == 'e') NOW_KEY = F_NOW_KEY;
-            else if (S_NOW_KEY ^ letter_st_ar[1].second == ' ') NOW_KEY = S_NOW_KEY;
+            if ((F_NOW_KEY ^ letter_st_ar[1].second) == 'e') NOW_KEY = F_NOW_KEY;
+            else if ((S_NOW_KEY ^ letter_st_ar[1].second) == ' ') NOW_KEY = S_NOW_KEY;
 
             if (!NOW_KEY) break;
 
