@@ -155,11 +155,22 @@ int main(void)
     
     char encr_mess_base64[BUFSZ], encr_mess[BUFSZ];
 
-    fread(encr_mess_base64, 1, BUFSZ - 1, encrypted_message_file);
-    int encr_mess_base64_size;
-    encr_mess_base64[
-        encr_mess_base64_size = strcspn(encr_mess_base64, "\n")
-    ] = '\0';
+    // fread(encr_mess_base64, 1, BUFSZ - 1, encrypted_message_file);
+    // int encr_mess_base64_size;
+    // encr_mess_base64[
+    //     encr_mess_base64_size = strcspn(encr_mess_base64, "\n")
+    // ] = '\0';
+
+    // reading file ignoring \n symbol by symbol
+    char nowsymbREAD;
+    char *encr_mess_base64_now = encr_mess_base64;
+    while (nowsymbREAD = fgetc(encrypted_message_file), nowsymbREAD != EOF)
+    {
+        if (nowsymbREAD == '\n') continue;
+        *encr_mess_base64_now++ = nowsymbREAD;
+    }
+    *encr_mess_base64_now = '\0';
+    int encr_mess_base64_size = strlen(encr_mess_base64);
 
     // TODO need base64 to binary convertion
     conv_base64_bin(encr_mess_base64, encr_mess, strlen(encr_mess_base64));
@@ -219,7 +230,7 @@ int main(void)
 
             // rearranging statistics and creating an array
             vector<pair<int, char>> letter_st_ar;
-            for (auto t : letter_st_ar) letter_st_ar.push_back(t);
+            for (auto t : letter_st_map) letter_st_ar.push_back(t);
             sort(letter_st_ar.begin(), letter_st_ar.end(), [](const auto a, const auto b)
             {
                 return a.first > b.first;
@@ -227,9 +238,9 @@ int main(void)
 
             // freeing memory
             // first to choose key second to fit it
-            // letter_st_ar.resize(2);
+            letter_st_ar.resize(2);
 
-            for (auto t : letter_st_ar) cout << t.first << " " << (int) t.second << endl;
+            // for (auto t : letter_st_ar) cout << t.first << " " << (int) t.second << endl;
 
             char NOW_KEY = 0; // assume that we don't use this letter in key
             // checking first one
