@@ -116,7 +116,8 @@ char conv_base64_digit_bin(char letter) // base64 letter to convert
 
 // converts base64 string to binary format
 // **string of bytes** as a result
-void conv_base64_bin(   const char *src,  // base64 string 
+// returns nubmer of characters in resulting string
+int conv_base64_bin(   const char *src,  // base64 string 
                         char *dist,       // resulting binary string 
                         int str_size)     // number of bytes to encode base64 string
 {
@@ -145,6 +146,11 @@ void conv_base64_bin(   const char *src,  // base64 string
         *(dist + 2) = buf[2];
         dist += 3;
     }
+
+    int ret_size = (str_size / 4) * 3;
+    ret_size -= src[str_size - 1] == '=';
+    ret_size -= src[str_size - 2] == '=';
+    return ret_size;
 }
 
 
@@ -177,10 +183,7 @@ int main(void)
     int encr_mess_base64_size = strlen(encr_mess_base64);
 
     // TODO need base64 to binary convertion
-    conv_base64_bin(encr_mess_base64, encr_mess, strlen(encr_mess_base64));
-    int encr_mess_size = (encr_mess_base64_size / 4) * 3;
-    encr_mess_size -= encr_mess_base64[encr_mess_base64_size - 1] == '=';
-    encr_mess_size -= encr_mess_base64[encr_mess_base64_size - 2] == '=';
+    int encr_mess_size = conv_base64_bin(encr_mess_base64, encr_mess, strlen(encr_mess_base64));
 
 
     // going though key sizes
